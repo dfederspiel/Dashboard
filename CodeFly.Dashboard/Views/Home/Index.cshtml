@@ -1,0 +1,27 @@
+﻿<div class="row">
+    <div class="col-lg-12">
+        <h1>Project Dashboard</h1>
+        <ul class="projects">
+            <li class="col-lg-3 col-md-4 col-sm-6" ng-repeat="board in boards" ng-click="setDashboard()">
+                <span>{{board.name}}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12" ng-model="board">
+        <h2>{{board.name}}</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Projects</h2>
+        <div class="col-lg-12" ng-repeat="card in cards | filter: { labels: { name: 'Project' } }">{{card.name}}</div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Other</h2>
+        <div class="col-lg-12" ng-repeat="card in cards | filter: !{ labels: { name: 'Project' } }">{{card.name}}</div>
+    </div>
+</div>
