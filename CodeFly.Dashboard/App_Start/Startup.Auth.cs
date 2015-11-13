@@ -43,6 +43,9 @@ namespace CodeFly.Dashboard
                 AllowInsecureHttp = true
             };
 
+            // Configure SignalR
+            app.MapSignalR();
+
             // Enable the application to use bearer tokens to authenticate users
             app.UseOAuthBearerTokens(OAuthOptions);
 

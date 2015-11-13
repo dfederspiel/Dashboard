@@ -4,9 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    @Scripts.Render("~/bundles/angular")
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script src="https://api.trello.com/1/client.js?key=c5f5588eef0a17225de05d7c4f8c77a3"></script>
 </head>
@@ -39,28 +41,13 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
-    <script>
-        var authenticationSuccess = function () {
-            console.log("Successful authentication");
-        };
-        var authenticationFailure = function () {
-            console.log("Failed authentication");
-        };
 
-        if (!Trello.authorized()) {
-            Trello.authorize({
-                type: "popup",
-                name: "Pegboard by CodeFly",
-                scope: {
-                    read: true,
-                    write: true
-                },
-                expiration: "never",
-                success: authenticationSuccess,
-                error: authenticationFailure
-            });
-        }
-    </script>
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.1.2.js"></script>
+    <script src="~/Scripts/Controllers/dashboard.js"></script>
+    <script src="~/signalr/hubs"></script>
+
+    @RenderSection("scripts", required: false)
+
 </body>
 </html>
