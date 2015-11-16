@@ -18,16 +18,6 @@ namespace CodeFly.Dashboard.Controllers
             return View();
         }
 
-        public ActionResult Hook()
-        {
-            // To make this work, create a webhook.  This will eventually be used to update the dashboard.  
-            string postData = getPostData();
-            //System.IO.File.AppendAllText(String.Format("C:/Temp/Trello_Webhook_{0}.json", DateTime.Now.Ticks.ToString()), postData);
-            var hubContext = GlobalHost.ConnectionManager.GetHubContext<TrelloWebhookHub>();
-            hubContext.Clients.All.handleWebHook(postData);
-            return View();
-        }
-
         public ActionResult BoardActivity()
         {
             var hubContext = GlobalHost.ConnectionManager.GetHubContext<TrelloWebhookHub>();

@@ -23,8 +23,8 @@
         </div>
     </div>
 
-    <div class="row">    
-        <section class="col-lg-12" ng-repeat="(key, value) in cards | groupBy: 'idList'">
+    <div class="row" ng-repeat="(key, value) in cards | groupBy: 'idList'">    
+        @*<section class="col-lg-12" ng-repeat="(key, value) in cards | groupBy: 'idList'">*@
             <h3>{{getListName(key)}}</h3>
             <div class="project col-lg-6" ng-repeat="card in value" ng-class="{ blocked: isBlocked(), pending: isPending() }">
                 <big>{{card.name}}</big>
@@ -35,7 +35,7 @@
                 <progress value="{{getPercentComplete(card)}}" max="100">test</progress>
             </div>
             
-        </section>
+        @*</section>*@
     </div>
     @*<div class="row">
         <div class="col-lg-12">

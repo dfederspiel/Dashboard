@@ -29,18 +29,15 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     $scope.setDashboard = function () {
         console.log(this.board);
         $scope.board = this.board;
-        console.log("Board", this.board);
         hookItem(this.board.id, 'dashboard.dev.codefly.ninja/home/boardactivity');
         //getCards();
         getLists(function () {
             $.each($scope.lists, function (idx, list) {
                 hookItem(list.id, 'dashboard.dev.codefly.ninja/home/listactivity');
-                console.log("List", list);
                 getCards(function (cards) {
                     //list.cards = cards;
                     $.each($scope.cards, function (idx, card) {
                         hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
-                        console.log("Card", card);
                     });
                     $scope.dashboardSet = true;
                     $scope.$apply();
@@ -165,70 +162,49 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     // SignalR 
     var dashboard = $.connection.trelloWebhookHub;
 
-    // Create a function that the hub can call back to announce data.
-    dashboard.client.handleWebHook = function (data) {
-        if (data == '') return;
-
-        var json = JSON.parse(data);
-        console.log(json);
-
-        switch (json.action.type) {
-            case 'updateCard':
-                console.log('Update Card');
-                break;
-            default:
-                console.log('Unhandled Action:' + json.action.type);
-                break;
-        }
-    }
-
+    // Board Announce
     dashboard.client.handleBoardActivity = function (data) {
-        if (data == '') return;
+        if (data == '' || !$scope.dashboardSet) return;
 
         var json = JSON.parse(data);
         console.log('Board Update (' + json.action.type + ')', json);
     }
 
+    // List Announce
     dashboard.client.handleListActivity = function (data) {
-        if (data == '') return;
+        if (data == '' || !$scope.dashboardSet) return;
 
         var json = JSON.parse(data);
         console.log('List Update (' + json.action.type + ')', json);
 
-        //switch (json.action.type) {
-        //    case 'updateCard':
-        //        var targetList = getListById(json.action.data.card.idList);
-        //        var oldList = getListById(json.action.data.old.idList);
-
-        //        if (targetList && oldList) {
-
-        //            var cardToMove = oldList.cards.filter(function (obj) {
-        //                return obj.id === json.action.data.card.id;
-        //            });
-
-        //            if (cardToMove.length > 0) {
-        //                targetList.cards.push(cardToMove);
-
-        //                oldList.cards = oldList.cards.filter(function (obj) {
-        //                    return obj.id !== json.action.data.card.id;
-        //                });
-        //            }
-        //        }
-        //        break;
-        //}
-
         $scope.$apply();
     }
 
+    // Card Announce
     dashboard.client.handleCardActivity = function (data) {
-        if (data == '') return;
+        if (data == '' || !$scope.dashboardSet) return;
 
         var json = JSON.parse(data);
         var card = json.model;
         console.log('Card Update (' + json.action.type + ')', json);
 
-        var target = $scope.cards.filter(c => c.id == json.model.id)[0];
-        for (var attrname in card) { target[attrname] = card[attrname]; }
+        switch (json.action.type) {
+            case 'updateCard':
+            case 'addLabelToCard':
+            case 'removeLabelFromCard':
+            case 'addChecklistToCard':
+            case 'updateCheckItemStateOnCard':
+            case 'addMemberToCard':
+            case 'removeMemberFromCard':
+            case 'addAttachmentToCard':
+            case 'deleteAttachmentFromCard':
+                var target = $scope.cards.filter(c => c.id == json.model.id)[0];
+                for (var attrname in card) { target[attrname] = card[attrname]; }
+                break;
+
+        }
+
+        
 
         $scope.$apply();
     }
@@ -245,7 +221,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     // Authentication to Trello using client.js
     if (!Trello.authorized()) {
         Trello.authorize({
-            type: "popup",
+            type: "redirect",
             name: "Dashboard by CodeFly",
             scope: {
                 read: true,

@@ -8,16 +8,6 @@ namespace CodeFly.Dashboard.Hubs
 {
     public class TrelloWebhookHub : Hub
     {
-        public void Send(string name, string message)
-        {
-            Clients.All.addNewMessageToPage(name, message);
-        }
-
-        public void HandleWebHook(object data)
-        {
-            Clients.All.handleWebHook(data);
-        }
-
         public void HandleBoardActivity(object data)
         {
             Clients.All.handleBoardActivity(data);
