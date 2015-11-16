@@ -12,5 +12,25 @@ namespace CodeFly.Dashboard.Hubs
         {
             Clients.All.addNewMessageToPage(name, message);
         }
+
+        public void HandleWebHook(object data)
+        {
+            Clients.All.handleWebHook(data);
+        }
+
+        public void HandleBoardActivity(object data)
+        {
+            Clients.All.handleBoardActivity(data);
+        }
+
+        public void HandleListActivity(object data)
+        {
+            Clients.All.handleListActivity(data);
+        }
+
+        public void HandleCardActivity(object data)
+        {
+            Clients.All.handleCardActivity(data);
+        }
     }
 }
