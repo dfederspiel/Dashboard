@@ -50,7 +50,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         return 100 * (card.badges.checkItemsChecked / card.badges.checkItems);
     }
 
-    $scope.getListName = function(id){
+    $scope.getListName = function (id) {
         return $scope.lists.filter(l => l.id == id)[0].name;
     }
 
@@ -193,6 +193,9 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
             case 'addLabelToCard':
             case 'removeLabelFromCard':
             case 'addChecklistToCard':
+            case 'removeChecklistFromCard':
+            case 'createCheckItem':
+            case 'deleteCheckItem':
             case 'updateCheckItemStateOnCard':
             case 'addMemberToCard':
             case 'removeMemberFromCard':
@@ -204,7 +207,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
 
         }
 
-        
+
 
         $scope.$apply();
     }

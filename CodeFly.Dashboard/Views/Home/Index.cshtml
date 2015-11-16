@@ -7,6 +7,7 @@
 </div>
 
 <div class="container" ng-show="authorized">
+
     <div class="row">
         <div class="col-lg-12">
             <h1>Project Dashboard</h1>
@@ -17,48 +18,22 @@
             </ul>
         </div>
     </div>
+
     <div class="row">
         <div class="col-lg-12" ng-model="board">
             <h2>{{board.name}}</h2>
         </div>
     </div>
 
-    <div class="row" ng-repeat="(key, value) in cards | groupBy: 'idList'">    
-        @*<section class="col-lg-12" ng-repeat="(key, value) in cards | groupBy: 'idList'">*@
-            <h3>{{getListName(key)}}</h3>
-            <div class="project col-lg-6" ng-repeat="card in value" ng-class="{ blocked: isBlocked(), pending: isPending() }">
-                <big>{{card.name}}</big>
-                
-                <a class="icon" href="{{card.shortUrl}}"><i class="fa fa-eye"></i></a>
-                <a class="icon" href="mailto:{{card.email}}"><i class="fa fa-commenting-o"></i></a>
-                <br/>
-                <progress value="{{getPercentComplete(card)}}" max="100">test</progress>
-            </div>
-            
-        @*</section>*@
-    </div>
-    @*<div class="row">
-        <div class="col-lg-12">
-            <h2>Change Orders</h2>
-            <div class="col-lg-3" ng-repeat="card in cards | filter: { labels: { name: 'Change Order' } }">{{card.name}}</div>
+    <div class="row" ng-repeat="(key, value) in cards | groupBy: 'idList'">
+        <h3>{{getListName(key)}}</h3>
+        <div class="project col-lg-6" ng-repeat="card in value" ng-class="{ blocked: isBlocked(), pending: isPending() }">
+            <big>{{card.name}}</big>
+
+            <a class="icon" href="{{card.shortUrl}}"><i class="fa fa-eye"></i></a>
+            <a class="icon" href="mailto:{{card.email}}"><i class="fa fa-commenting-o"></i></a>
+            <br />
+            <progress ng-show="card.badges.checkItems > 0" value="{{getPercentComplete(card)}}" max="100">test</progress>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>Support</h2>
-            <div class="col-lg-3" ng-repeat="card in cards | filter: { labels: { name: 'Support' } }">{{card.name}}</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>Content</h2>
-            <div class="col-lg-3" ng-repeat="card in cards | filter: { labels: { name: 'Content' } }">{{card.name}}</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>Other</h2>
-            <div class="col-lg-3" ng-repeat="card in cards | filter: notLabeled">{{card.name}}</div>
-        </div>
-    </div>*@
 </div>
