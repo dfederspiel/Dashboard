@@ -27,23 +27,23 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
 
     // Set Dashboard - preload all necessary data.
     $scope.setDashboard = function () {
-        console.log(this.board);
+
         $scope.board = this.board;
         hookItem(this.board.id, 'dashboard.dev.codefly.ninja/home/boardactivity');
-        //getCards();
+
         getLists(function () {
             $.each($scope.lists, function (idx, list) {
                 hookItem(list.id, 'dashboard.dev.codefly.ninja/home/listactivity');
-                getCards(function (cards) {
-                    //list.cards = cards;
-                    $.each($scope.cards, function (idx, card) {
-                        hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
-                    });
-                    $scope.dashboardSet = true;
-                    $scope.$apply();
-                })
             });
-        })
+
+            getCards(function (cards) {
+                $.each($scope.cards, function (idx, card) {
+                    hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
+                });
+                $scope.dashboardSet = true;
+                $scope.$apply();
+            });
+        });
     };
 
     $scope.getPercentComplete = function (card) {
@@ -144,7 +144,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         };
 
         Trello.post('/webhooks/', parameters, function (response) {
-            console.log("Successfully Create Webhook", response);
+            console.log("Successfully Created Webhook", response);
         }, function (response) {
             console.log("Failed to Create Webhook", response);
         });
@@ -222,7 +222,57 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
 
 
     // Authentication to Trello using client.js
-    if (!Trello.authorized()) {
+    var onAuthorize = function () {
+        updateLoggedIn();
+        $("#output").empty();
+
+        console.log("Successful authentication");
+        $scope.authorized = true;
+        getBoards(function () {
+            getToken();
+            $scope.$apply();
+        });
+
+        Trello.members.get("me", function (member) {
+            $("#fullName").text(member.fullName);
+
+            //var $cards = $("<div>")
+            //    .text("Loading Cards...")
+            //    .appendTo("#output");
+
+            //// Output a list of all of the cards that the member 
+            //// is assigned to
+            //Trello.get("members/me/cards", function (cards) {
+            //    $cards.empty();
+            //    $.each(cards, function (ix, card) {
+            //        $("<a>")
+            //        .attr({ href: card.url, target: "trello" })
+            //        .addClass("card")
+            //        .text(card.name)
+            //        .appendTo($cards);
+            //    });
+            //});
+        });
+
+    };
+
+    var updateLoggedIn = function () {
+        var isLoggedIn = Trello.authorized();
+        $("#loggedout").toggle(!isLoggedIn);
+        $("#loggedin").toggle(isLoggedIn);
+    };
+
+    var logout = function () {
+        Trello.deauthorize();
+        updateLoggedIn();
+    };
+
+    Trello.authorize({
+        interactive: false,
+        success: onAuthorize
+    });
+
+    $("#connectLink").click(function () {
         Trello.authorize({
             type: "redirect",
             name: "Dashboard by CodeFly",
@@ -231,21 +281,11 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
                 write: true,
                 account: true
             },
-            expiration: "never",
-            success: function () {
-                console.log("Successful authentication");
-                $scope.authorized = true;
-                getBoards(function () {
-                    getToken();
-                    $scope.$apply();
-                });
-            },
-            error: function () {
-                console.log("Failed authentication");
-            }
-        });
-    } else {
-        // Get the member boards
-        getBoards(function () { $scope.$apply() });
-    }
+            expiration: "1hour",
+            success: onAuthorize
+        })
+    });
+
+    $("#disconnect").click(logout);
+
 });
