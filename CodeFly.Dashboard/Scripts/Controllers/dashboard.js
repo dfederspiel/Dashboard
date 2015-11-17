@@ -1,31 +1,24 @@
 ﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter']);
 
 dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
-
+   
+    // Properties
     $scope.boards = [];
     $scope.cards = [];
     $scope.board = {};
     $scope.lists = [];
 
-    //$scope.projects = {
-    //    active: null,
-    //    onDeck: null,
-    //    upcoming: null,
-    //    complete: null
-    //}
-
     $scope.members = [];
     $scope.token = [];
-
-    //$scope.activeTasks = null;
-    //$scope.upcomingTasks = null;
-    //$scope.readyTasks = null;
-    //$scope.completedTasks = null;
 
     $scope.authorized = false;
     $scope.dashboardSet = false;
 
-    // Set Dashboard - preload all necessary data.
+
+
+
+
+    // Context Helpers
     $scope.setDashboard = function () {
 
         $scope.board = this.board;
@@ -54,6 +47,10 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         return $scope.lists.filter(l => l.id == id)[0].name;
     }
 
+
+
+
+
     // Custom Filters
     $scope.notLabeled = function (o) {
         var isNotLabeled = true;
@@ -71,6 +68,10 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         return this.card.idList == list.id;
     }
 
+
+
+
+
     // Custom Classes
     $scope.isBlocked = function (c) {
         return this.card.labels.filter(l => l.name == 'Blocked').length > 0;
@@ -79,6 +80,10 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     $scope.isPending = function (c) {
         return this.card.labels.filter(l => l.name == 'Pending').length > 0;
     }
+
+
+
+
 
     // Helpers
     function getIdForStatus(s) {
@@ -93,6 +98,10 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     function getListById(id) {
         return $scope.lists.filter(l => l.id == id)[0];
     }
+
+
+
+
 
     // API Methods
     function getBoards(callback) {
@@ -159,10 +168,12 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         });
     }
 
+
+
+
     // SignalR 
     var dashboard = $.connection.trelloWebhookHub;
 
-    // Board Announce
     dashboard.client.handleBoardActivity = function (data) {
         if (data == '' || !$scope.dashboardSet) return;
 
@@ -170,7 +181,6 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         console.log('Board Update (' + json.action.type + ')', json);
     }
 
-    // List Announce
     dashboard.client.handleListActivity = function (data) {
         if (data == '' || !$scope.dashboardSet) return;
 
@@ -180,7 +190,6 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         $scope.$apply();
     }
 
-    // Card Announce
     dashboard.client.handleCardActivity = function (data) {
         if (data == '' || !$scope.dashboardSet) return;
 
@@ -212,7 +221,6 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         $scope.$apply();
     }
 
-    // Start the connection.
     $.connection.hub.start().done(function () {
         //$('#sendmessage').click(function () {
         //    // Call the Send method on the hub.
@@ -221,7 +229,9 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     });
 
 
-    // Authentication to Trello using client.js
+
+
+    // Authentication to Trello
     var onAuthorize = function () {
         updateLoggedIn();
         $("#output").empty();
@@ -235,23 +245,6 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
 
         Trello.members.get("me", function (member) {
             $("#fullName").text(member.fullName);
-
-            //var $cards = $("<div>")
-            //    .text("Loading Cards...")
-            //    .appendTo("#output");
-
-            //// Output a list of all of the cards that the member 
-            //// is assigned to
-            //Trello.get("members/me/cards", function (cards) {
-            //    $cards.empty();
-            //    $.each(cards, function (ix, card) {
-            //        $("<a>")
-            //        .attr({ href: card.url, target: "trello" })
-            //        .addClass("card")
-            //        .text(card.name)
-            //        .appendTo($cards);
-            //    });
-            //});
         });
 
     };
