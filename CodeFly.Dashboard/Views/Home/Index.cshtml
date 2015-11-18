@@ -1,19 +1,19 @@
-﻿<div class="container">
-    <div class="row">
-        <div id="loggedout">
-            <a id="connectLink" href="#">Connect To Trello</a>
+﻿
+<div style="float: right;">
+    <div id="loggedout">
+        <a id="connectLink" href="#">Connect To Trello</a>
+    </div>
+
+    <div id="loggedin">
+        <div id="header">
+            Logged in to as <span id="fullName"></span>
+            <a id="disconnect" href="#">Log Out</a>
         </div>
 
-        <div id="loggedin">
-            <div id="header">
-                Logged in to as <span id="fullName"></span>
-                <a id="disconnect" href="#">Log Out</a>
-            </div>
-
-            <div id="output"></div>
-        </div>
+        <div id="output"></div>
     </div>
 </div>
+
 
 <div class="container" ng-show="authorized">
     <div class="row">
@@ -26,27 +26,21 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12" ng-model="board">
-            <h3>{{board.name}}</h3>
-        </div>
-    </div>
-
-    <div class="row" ng-repeat="(key, value) in cards | groupBy: 'idList'">
-        <h3>{{getListName(key)}}</h3>
-        <div class="project col-lg-12 col-md-6" ng-repeat="card in value" ng-class="{ blocked: isBlocked(), pending: isPending() }">
+    <div class="row" ng-repeat="(key, cards) in cards | groupBy: 'idList'">
+        <h4>{{getListName(key)}}</h4>
+        <div class="project col-lg-12 col-md-6" ng-repeat="card in cards | orderBy: percentComplete" ng-class="{ blocked: isBlocked(), pending: isPending() }">
             <big>{{card.name}}</big>
 
             <a class="icon" href="{{card.shortUrl}}"><i class="fa fa-eye"></i></a>
             <a class="icon" href="mailto:{{card.email}}"><i class="fa fa-commenting-o"></i></a>
             <br />
-            <progress ng-show="card.badges.checkItems > 0" value="{{getPercentComplete(card)}}" max="100">test</progress>
+            <progress ng-show="card.badges.checkItems > 0" value="{{card.percentComplete}}" max="100"></progress>
         </div>
     </div>
 </div>
 
 <script>
-    (function () {
+    var go = function () {
         var COLORS, Confetti, NUM_CONFETTI, PI_2, canvas, confetti, context, drawCircle, i, range, resizeWindow, xpos;
 
         NUM_CONFETTI = 350;
@@ -161,7 +155,7 @@
         };
 
         step();
-
-    }).call(this);
+        resizeWindow();
+    }
 
 </script>

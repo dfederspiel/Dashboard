@@ -1,6 +1,6 @@
 ﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter']);
 
-dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
+dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', function ($scope, Card) {
    
     // Properties
     $scope.boards = [];
@@ -39,7 +39,7 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         });
     };
 
-    $scope.getPercentComplete = function (card) {
+    $scope.percentComplete = function (card) {
         return 100 * (card.badges.checkItemsChecked / card.badges.checkItems);
     }
 
@@ -123,7 +123,9 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
     function getCards(callback) {
         Trello.get('/boards/' + $scope.board.id + '/cards',
             function (response) {
-                $scope.cards = response;
+                for (var x = 0; x < response.length; x++) {
+                    $scope.cards.push(new Card(response[x]))
+                }
                 callback();
             });
     }
@@ -141,6 +143,9 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         });
     }
 
+
+
+    // Webhooks
     function hookItem(id, path) {
 
         if ($scope.token.webhooks.filter(w => w.idModel == id).length > 0)
@@ -194,7 +199,6 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
         if (data == '' || !$scope.dashboardSet) return;
 
         var json = JSON.parse(data);
-        var card = json.model;
         console.log('Card Update (' + json.action.type + ')', json);
 
         switch (json.action.type) {
@@ -211,13 +215,10 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
             case 'addAttachmentToCard':
             case 'deleteAttachmentFromCard':
                 var target = $scope.cards.filter(c => c.id == json.model.id)[0];
-                for (var attrname in card) { target[attrname] = card[attrname]; }
+                target = target.update(json.model);
                 break;
 
         }
-
-
-
         $scope.$apply();
     }
 
@@ -278,7 +279,63 @@ dashboardApp.controller('DashboardCtrl', function ($scope, $q) {
             success: onAuthorize
         })
     });
-
     $("#disconnect").click(logout);
 
+}]).factory('Card', function () {
+ 
+    /**
+     * Constructor, with class name
+     */
+    function Card(model) {
+        // Public properties, assigned to the instance ('this')
+        for (var attrname in model) { this[attrname] = model[attrname]; }
+        this.percentComplete = 100 * (this.badges.checkItemsChecked / this.badges.checkItems);
+    }
+ 
+    /**
+     * Public method, assigned to prototype
+     */
+    Card.prototype.update = function (model) {
+        for (var attrname in model) { this[attrname] = model[attrname]; }
+        this.percentComplete = 100 * (this.badges.checkItemsChecked / this.badges.checkItems);
+    };
+ 
+    /**
+     * Private property
+     */
+    var possibleRoles = ['admin', 'editor', 'guest'];
+ 
+    /**
+     * Private function
+     */
+    function checkRole(role) {
+        return possibleRoles.indexOf(role) !== -1;
+    }
+ 
+    /**
+     * Static property
+     * Using copy to prevent modifications to private property
+     */
+    Card.possibleRoles = angular.copy(possibleRoles);
+ 
+    /**
+     * Static method, assigned to class
+     * Instance ('this') is not available in static context
+     */
+    Card.build = function (data) {
+        if (!checkRole(data.role)) {
+            return;
+        }
+        return new Card(
+          data.first_name,
+          data.last_name,
+          data.role,
+          Organisation.build(data.organisation) // another model
+        );
+    };
+ 
+    /**
+     * Return the constructor function
+     */
+    return Card;
 });

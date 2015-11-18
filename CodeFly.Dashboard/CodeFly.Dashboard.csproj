@@ -251,6 +251,9 @@
     <Content Include="Content\dashboard.css" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\images\dark_embroidery.png" />
+    <Content Include="Content\images\dark_embroidery_blocked.png" />
+    <Content Include="Content\images\dark_embroidery_pending.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />

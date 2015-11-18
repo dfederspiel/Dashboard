@@ -6,41 +6,47 @@
         padding: 12px;
     }
 
-body {
-    background: #369;
-    color: #eee;
-}
-
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #111;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+    position: relative;
+    z-index: -10;
+    color: #bbb;
 }
 
-#world{
+.body-content {
+    margin-top: 10px;
+}
+
+#world {
     position: absolute;
+    z-index: -5;
 }
 
 .project {
     border: solid 2px #000;
-    margin: 12px;
     border-radius: 5px;
     background-color: rgba(255,255,255,.2);
+    min-height: 60px;
+    margin: 6px 0;
+    background: url('images/dark_embroidery.png') repeat top left;
 }
 
     .project.blocked {
-        background-color: red;
+        background: url('images/dark_embroidery_blocked.png') repeat top left;
     }
 
     .project.pending {
-        background-color: orange;
+        opacity: .8;
+        background: url('images/dark_embroidery_pending.png') repeat top left;
     }
 
     .project big {
-        font-size: 2.3rem;
+        font-size: 2.0rem;
     }
 
 .icon {
@@ -52,14 +58,29 @@ html, body {
         color: #fff;
     }
 
-progress[value] {
-    -webkit-appearance: none;
-    appearance: none;
+progress {
     width: 100%;
-    height: 10px;
-    border-radius: 3px;
+    height: 14px;
+    display: block;
+    /* Important Thing */
+    -webkit-appearance: none;
+    border: none;
 }
 
-progress:not([value]) {
-    display: none;
-}
+    /* All good till now. Now we'll style the background */
+    progress::-webkit-progress-bar {
+        background: #222;
+        border-radius: 50px;
+        padding: 2px;
+        box-shadow: 0 1px 0px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    /* Now the value part */
+    progress::-webkit-progress-value {
+        border-radius: 50px;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+        background: -webkit-linear-gradient(45deg, transparent, transparent 33%, rgba(0, 0, 0, 0.1) 33%, rgba(0, 0, 0, 0.1) 66%, transparent 66%), -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.2)), -webkit-linear-gradient(left, #ba7448, #c4672d);
+        /* Looks great, now animating it */
+        background-size: 25px 14px, 100% 100%, 100% 100%;
+        -webkit-animation: move 5s linear 0 infinite;
+    }
