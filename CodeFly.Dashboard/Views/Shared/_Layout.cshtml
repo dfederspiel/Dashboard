@@ -7,6 +7,21 @@
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script src="https://api.trello.com/1/client.js?key=c5f5588eef0a17225de05d7c4f8c77a3"></script>
+
+    <script src="~/Scripts/angular.js"></script>
+    <script src="~/Scripts/angular-filter.js"></script>
+    <script src="~/Scripts/Controllers/dashboard.js"></script>
+
+    <script src="~/Scripts/kendo.all.min.js"></script>
+    <script src="~/Scripts/angular-kendo.js"></script>
+
+    <script src="~/Scripts/jquery.signalR-2.1.2.js"></script>
+    <script src="~/signalr/hubs"></script>
+
     <link href="~/Content/font-awesome.css" rel="stylesheet" />
 </head>
 <body ng-controller="DashboardCtrl">
@@ -33,16 +48,7 @@
         @RenderBody()
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    <script src="https://api.trello.com/1/client.js?key=c5f5588eef0a17225de05d7c4f8c77a3"></script>
-
-    <script src="~/Scripts/angular.js"></script>
-    <script src="~/Scripts/angular-filter.js"></script>
-    <script src="~/Scripts/Controllers/dashboard.js"></script>
-    
-    <script src="~/Scripts/jquery.signalR-2.1.2.js"></script>
-    <script src="~/signalr/hubs"></script>
+   
 
     @RenderSection("scripts", required: false)
 </body>

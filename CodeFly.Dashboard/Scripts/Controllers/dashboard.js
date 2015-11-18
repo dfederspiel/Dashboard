@@ -1,6 +1,6 @@
-﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter']);
+﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter', 'kendo.directives']);
 
-dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', function ($scope, Card) {
+dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($scope, Card, Board) {
    
     // Properties
     $scope.boards = [];
@@ -107,7 +107,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', function ($scope, Ca
     function getBoards(callback) {
         Trello.get('/member/me/boards',
             function (response) {
-                $scope.boards = response;
+                for (var x = 0; x < response.length; x++) {
+                    if(!response[x].closed)
+                        $scope.boards.push(new Board(response[x]))
+                }
                 callback();
             });
     }
@@ -290,6 +293,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', function ($scope, Ca
         // Public properties, assigned to the instance ('this')
         for (var attrname in model) { this[attrname] = model[attrname]; }
         this.percentComplete = 100 * (this.badges.checkItemsChecked / this.badges.checkItems);
+        console.log("New Card", this);
     }
  
     /**
@@ -303,39 +307,47 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', function ($scope, Ca
     /**
      * Private property
      */
-    var possibleRoles = ['admin', 'editor', 'guest'];
+    //var possibleRoles = ['admin', 'editor', 'guest'];
  
     /**
      * Private function
      */
-    function checkRole(role) {
-        return possibleRoles.indexOf(role) !== -1;
-    }
+    //function checkRole(role) {
+    //    return possibleRoles.indexOf(role) !== -1;
+    //}
  
     /**
      * Static property
      * Using copy to prevent modifications to private property
      */
-    Card.possibleRoles = angular.copy(possibleRoles);
+    //Card.possibleRoles = angular.copy(possibleRoles);
  
     /**
      * Static method, assigned to class
      * Instance ('this') is not available in static context
      */
-    Card.build = function (data) {
-        if (!checkRole(data.role)) {
-            return;
-        }
-        return new Card(
-          data.first_name,
-          data.last_name,
-          data.role,
-          Organisation.build(data.organisation) // another model
-        );
-    };
+    //Card.build = function (data) {
+    //    if (!checkRole(data.role)) {
+    //        return;
+    //    }
+    //    return new Card(
+    //      data.first_name,
+    //      data.last_name,
+    //      data.role,
+    //      Organisation.build(data.organisation) // another model
+    //    );
+    //};
  
     /**
      * Return the constructor function
      */
     return Card;
+}).factory('Board', function(){
+
+    function Board(model) {
+        for (var attrname in model) { this[attrname] = model[attrname]; }
+        console.log("New Board", this);
+    }
+
+    return Board;
 });

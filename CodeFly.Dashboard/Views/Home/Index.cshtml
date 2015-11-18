@@ -14,12 +14,12 @@
     </div>
 </div>
 
-
+<div id="chart"></div>
 <div class="container" ng-show="authorized">
     <div class="row">
         <div class="col-lg-12">
             <ul class="projects">
-                <li class="col-lg-3 col-md-4 col-sm-6" ng-repeat="board in boards" ng-click="setDashboard()" ng-show="!dashboardSet">
+                <li class="col-lg-3 col-md-4 col-sm-6" ng-repeat="board in boards | filter: closed " ng-click="setDashboard()" ng-show="!dashboardSet">
                     <span>{{board.name}}</span>
                 </li>
             </ul>
@@ -158,4 +158,38 @@
         resizeWindow();
     }
 
+</script>
+
+<script type="text/javascript">
+   
+    $(document).ready($("#chart").kendoChart({
+        title: {
+            text: "Break-up of Spain Electricity Production for 2008"
+        },
+        legend: {
+            position: "bottom"
+        },
+        seriesDefaults: {
+            labels: {
+                visible: true,
+                format: "{0}%"
+            }
+        },
+        series: [{
+            type: "pie",
+            data: [{
+                category: "Hydro",
+                value: 22
+            }, {
+                category: "Solar",
+                value: 2
+            }, {
+                category: "Nuclear",
+                value: 49
+            }, {
+                category: "Wind",
+                value: 27
+            }]
+        }]
+    }));
 </script>
