@@ -104,7 +104,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     }
 
     $scope.getListName = function (id) {
-        return $scope.lists.filter(l => l.id == id)[0].name;
+        for(var x = 0; x < $scope.lists.length; x++){
+            if($scope.lists[x].id == id)
+                return $scope.lists[x].name;
+        }
     }
 
 
@@ -134,11 +137,26 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     // Custom Classes
     $scope.isBlocked = function (c) {
-        return this.card.labels.filter(l => l.name == 'Blocked').length > 0;
+        //return this.card.labels.filter(l => l.name == 'Blocked').length > 0;
+        for(var x = 0; x < this.card.labels.length; x++){
+            if(this.card.labels[x].name == 'Blocked')
+                return true;
+        }
     }
 
     $scope.isPending = function (c) {
-        return this.card.labels.filter(l => l.name == 'Pending').length > 0;
+        //return this.card.labels.filter(l => l.name == 'Pending').length > 0;
+        for(var x = 0; x < this.card.labels.length; x++){
+            if(this.card.labels[x].name == 'Pending')
+                return true;
+        }
+    }
+    
+    $scope.hasStatus = function(status){
+        for(var x = 0; x < this.card.labels.length; x++){
+            if(this.card.labels[x].name == status)
+                return true;
+        }
     }
 
 
@@ -156,7 +174,11 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     }
 
     function getListById(id) {
-        return $scope.lists.filter(l => l.id == id)[0];
+        //return $scope.lists.filter(l => l.id == id)[0];
+        for(var x = 0; x < $scope.lists.length; x++){
+            if($scope.lists[x].id == id)
+                return true;
+        }
     }
 
 
@@ -215,7 +237,11 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     function getToken() {
         Trello.get('/members/me/tokens?webhooks=true', function (response) {
-            $scope.token = response.filter(i => i.identifier == 'Dashboard by CodeFly')[0];
+            //$scope.token = response.filter(i => i.identifier == 'Dashboard by CodeFly')[0];
+            for(var x = 0; x < response.length; x++){
+                if(response[x].identifier == 'Dashboard by CodeFly')
+                    $scope.token = response[x];
+            }
         });
     }
 
@@ -223,9 +249,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     // Webhooks
     function hookItem(id, path) {
-
-        if ($scope.token.webhooks.filter(w => w.idModel == id).length > 0)
-            return;
+        for(var x = 0; x < $scope.token.webhooks.length; x++){
+            if($scope.token.webhooks[x].idModel == id)
+                return;  // don't hook it again
+        }
 
         var parameters = {
             description: "Dashboard Webhook",
@@ -290,8 +317,16 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
             case 'removeMemberFromCard':
             case 'addAttachmentToCard':
             case 'deleteAttachmentFromCard':
-                var target = $scope.cards.filter(c => c.id == json.model.id)[0];
-                target = target.update(json.model);
+                //var target = $scope.cards.filter(c => c.id == json.model.id)[0];
+                var target = null;
+                for(var x = 0; x < $scope.cards.length; x++){
+                    if($scope.cards[x].id == json.model.id)
+                        target = $scope.cards[x];
+                }
+                
+                if(target !=== null)
+                    target = target.update(json.model);
+                
                 break;
             case 'commentCard':
                 $scope.feed.push({
@@ -435,8 +470,12 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     function getListName(id) {
 
-        return lists.filter(l => l.id == id)[0].name;
-
+        //return lists.filter(l => l.id == id)[0].name;
+        
+        for(var x = 0; x < lists.length; x++){
+            if(lists[x].id == id)
+                return lists[x].name;
+        }
     }
 
     /**
