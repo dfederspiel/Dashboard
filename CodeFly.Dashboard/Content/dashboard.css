@@ -57,7 +57,7 @@ html, body {
 .deck {
     height: 180px;
     border-radius: 10px;
-    background: url('images/dark_embroidery.png') repeat top left;
+    background-color: #369;
 }
 
     .deck .big {

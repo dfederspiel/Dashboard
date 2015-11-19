@@ -1,6 +1,6 @@
 ﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter', 'kendo.directives']);
 
-dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', function ($scope, Card, Board, List) {
+dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Member', function ($scope, Card, Board, List, Member) {
 
     // Properties
     $scope.boards = [];
@@ -15,6 +15,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', fun
 
     $scope.authorized = false;
     $scope.dashboardSet = false;
+    $scope.dashboardLoading = false;
 
     $scope.test = {
         title: {
@@ -73,7 +74,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', fun
 
     // Context Helpers
     $scope.setDashboard = function () {
+        
+        if($scope.dashboardLoading) return;
 
+        $scope.dashboardLoading = true;
         $scope.board = this.board;
         hookItem(this.board.id, 'dashboard.dev.codefly.ninja/home/boardactivity');
 
@@ -82,12 +86,15 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', fun
                 hookItem(list.id, 'dashboard.dev.codefly.ninja/home/listactivity');
             });
 
-            getCards(function (cards) {
-                $.each($scope.cards, function (idx, card) {
-                    hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
+            getMembers(function () {
+                getCards(function (cards) {
+                    $.each($scope.cards, function (idx, card) {
+                        hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
+                    });
+                    $scope.dashboardSet = true;
+                    $scope.dashboardLoading = false;
+                    $scope.$apply();
                 });
-                $scope.dashboardSet = true;
-                $scope.$apply();
             });
         });
     };
@@ -187,6 +194,16 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', fun
                 }
                 callback();
             });
+    }
+
+    function getMembers(callback) {
+        Trello.get('/boards/' + $scope.board.id + '/members',
+        function (response) {
+            for (var x = 0; x < response.length; x++) {
+                $scope.members.push(new Member(response[x]))
+            }
+            callback();
+        });
     }
 
     function getCardsForList(listId, callback) {
@@ -464,4 +481,11 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', fun
         console.log("New List", this);
     }
     return List;
+}).factory('Member', function () {
+
+    function Member(model) {
+        for (var attrname in model) { this[attrname] = model[attrname]; }
+        console.log("New Member", this);
+    }
+    return Member;
 });
