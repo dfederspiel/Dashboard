@@ -324,7 +324,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
                         target = $scope.cards[x];
                 }
                 
-                if(target !=== null)
+                if(target !== null)
                     target = target.update(json.model);
                 
                 break;
