@@ -34,6 +34,7 @@ html, body {
     min-height: 60px;
     margin: 6px 0;
     background: url('images/dark_embroidery.png') repeat top left;
+    padding: 6px 12px;
 }
 
     .project.blocked {
@@ -46,7 +47,21 @@ html, body {
     }
 
     .project big {
-        font-size: 2.0rem;
+        font-size: 1.6rem;
+    }
+
+    .project small {
+        float: right;
+    }
+
+.deck {
+    height: 180px;
+    border-radius: 10px;
+    background: url('images/dark_embroidery.png') repeat top left;
+}
+
+    .deck .big {
+        margin: 6px;
     }
 
 .icon {

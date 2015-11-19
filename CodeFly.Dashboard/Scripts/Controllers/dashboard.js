@@ -1,12 +1,14 @@
 ﻿var dashboardApp = angular.module('dashboardApp', ['angular.filter', 'kendo.directives']);
 
-dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($scope, Card, Board) {
-   
+dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', function ($scope, Card, Board, List) {
+
     // Properties
     $scope.boards = [];
     $scope.cards = [];
     $scope.board = {};
     $scope.lists = [];
+
+    $scope.feed = [];
 
     $scope.members = [];
     $scope.token = [];
@@ -14,7 +16,58 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
     $scope.authorized = false;
     $scope.dashboardSet = false;
 
-
+    $scope.test = {
+        title: {
+            position: "bottom",
+            text: "Share of Internet Population Growth, 2007 - 2012"
+        },
+        legend: {
+            visible: false
+        },
+        chartArea: {
+            background: ""
+        },
+        seriesDefaults: {
+            labels: {
+                visible: true,
+                background: "transparent",
+                template: "#= category #: \n #= value#%"
+            }
+        },
+        series: [{
+            type: "pie",
+            startAngle: 150,
+            data: [{
+                category: "Asia",
+                value: 53.8,
+                color: "#9de219"
+            }, {
+                category: "Europe",
+                value: 16.1,
+                color: "#90cc38"
+            }, {
+                category: "Latin America",
+                value: 11.3,
+                color: "#068c35"
+            }, {
+                category: "Africa",
+                value: 9.6,
+                color: "#006634"
+            }, {
+                category: "Middle East",
+                value: 5.2,
+                color: "#004d38"
+            }, {
+                category: "North America",
+                value: 3.6,
+                color: "#033939"
+            }]
+        }],
+        tooltip: {
+            visible: true,
+            format: "{0}%"
+        }
+    };
 
 
 
@@ -108,7 +161,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
         Trello.get('/member/me/boards',
             function (response) {
                 for (var x = 0; x < response.length; x++) {
-                    if(!response[x].closed)
+                    if (!response[x].closed)
                         $scope.boards.push(new Board(response[x]))
                 }
                 callback();
@@ -118,7 +171,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
     function getLists(callback) {
         Trello.get('/boards/' + $scope.board.id + '/lists',
             function (response) {
-                $scope.lists = response;
+                for (var x = 0; x < response.length; x++) {
+                    if (!response[x].closed)
+                        $scope.lists.push(new List(response[x]))
+                }
                 callback();
             });
     }
@@ -127,7 +183,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
         Trello.get('/boards/' + $scope.board.id + '/cards',
             function (response) {
                 for (var x = 0; x < response.length; x++) {
-                    $scope.cards.push(new Card(response[x]))
+                    $scope.cards.push(new Card(response[x], $scope.lists))
                 }
                 callback();
             });
@@ -220,8 +276,23 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
                 var target = $scope.cards.filter(c => c.id == json.model.id)[0];
                 target = target.update(json.model);
                 break;
+            case 'commentCard':
+                $scope.feed.push({
+                    type: 'New comment',
+                    member: json.action.memberCreator.fullName,
+                    text: json.action.data.text
+                });
+                $scope.$apply();
+                break;
+            default:
+                break;
 
         }
+
+        $scope.cards.sort(function (a, b) {
+            return a.pos - b.pos;
+        });
+
         $scope.$apply();
     }
 
@@ -285,43 +356,78 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
     $("#disconnect").click(logout);
 
 }]).factory('Card', function () {
- 
     /**
      * Constructor, with class name
      */
-    function Card(model) {
+    var labels = {
+        statuses: ['Pending', 'Blocked'],
+        types: ['Project', 'Change Order', 'Support', 'Content']
+    }
+
+    var lists = [];
+
+    function Card(model, listCollection) {
         // Public properties, assigned to the instance ('this')
-        for (var attrname in model) { this[attrname] = model[attrname]; }
-        this.percentComplete = 100 * (this.badges.checkItemsChecked / this.badges.checkItems);
+        for (var attrname in model) {
+            this[attrname] = model[attrname];
+        }
+        lists = listCollection;
+        calculateNewValues(this);
         console.log("New Card", this);
     }
- 
+
     /**
      * Public method, assigned to prototype
      */
     Card.prototype.update = function (model) {
-        for (var attrname in model) { this[attrname] = model[attrname]; }
-        this.percentComplete = 100 * (this.badges.checkItemsChecked / this.badges.checkItems);
+        for (var attrname in model) {
+            this[attrname] = model[attrname];
+        }
+        calculateNewValues(this);
     };
- 
+
     /**
      * Private property
      */
     //var possibleRoles = ['admin', 'editor', 'guest'];
- 
+
     /**
-     * Private function
+     * Private functions
      */
     //function checkRole(role) {
     //    return possibleRoles.indexOf(role) !== -1;
     //}
- 
+    function calculateNewValues(ctx) {
+        ctx.percentComplete = 100 * (ctx.badges.checkItemsChecked / ctx.badges.checkItems);
+        ctx.type = getCardType(ctx);
+        ctx.list = getListName(ctx.idList);
+        ctx.dueDate = (ctx.badges.due == null) ? null : new Date(ctx.badges.due).toDateString()
+    }
+
+    function getCardType(ctx) {
+        var cardType = null;
+        for (var x = 0; x < ctx.labels.length; x++) {
+            for (var i = 0; i < labels.types.length; i++) {
+                if (labels.types[i] == ctx.labels[x].name) {
+                    cardType = ctx.labels[x].name;
+                }
+            }
+        }
+        return cardType;
+    }
+
+    function getListName(id) {
+
+        return lists.filter(l => l.id == id)[0].name;
+
+    }
+
     /**
      * Static property
      * Using copy to prevent modifications to private property
      */
     //Card.possibleRoles = angular.copy(possibleRoles);
- 
+
     /**
      * Static method, assigned to class
      * Instance ('this') is not available in static context
@@ -337,12 +443,13 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
     //      Organisation.build(data.organisation) // another model
     //    );
     //};
- 
+
     /**
      * Return the constructor function
      */
     return Card;
-}).factory('Board', function(){
+
+}).factory('Board', function () {
 
     function Board(model) {
         for (var attrname in model) { this[attrname] = model[attrname]; }
@@ -350,4 +457,11 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', function ($
     }
 
     return Board;
+}).factory('List', function () {
+
+    function List(model) {
+        for (var attrname in model) { this[attrname] = model[attrname]; }
+        console.log("New List", this);
+    }
+    return List;
 });
