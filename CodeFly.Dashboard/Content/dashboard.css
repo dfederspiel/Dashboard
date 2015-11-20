@@ -16,6 +16,7 @@ html, body {
     position: relative;
     z-index: -10;
     color: #bbb;
+    font-family: monospace;
 }
 
 .body-content {
@@ -27,7 +28,7 @@ html, body {
     z-index: -5;
 }
 
-.project {
+.task {
     border: solid 2px #000;
     border-radius: 5px;
     background-color: rgba(255,255,255,.2);
@@ -37,21 +38,45 @@ html, body {
     padding: 6px 12px;
 }
 
-    .project.blocked {
+    .task.blocked {
         background: url('images/dark_embroidery_blocked.png') repeat top left;
     }
 
-    .project.pending {
+    .task.pending {
         opacity: .8;
         background: url('images/dark_embroidery_pending.png') repeat top left;
     }
 
-    .project big {
+    .task big {
         font-size: 1.6rem;
     }
 
-    .project small {
+    .task .small {
+        font-size: 1.2rem;
+    }
+
+    .task .due {
         float: right;
+        background-color: #111;
+        padding: 4px 4px 0px;
+        margin: -8px 13px 0 0;
+        border: solid 2px #000;
+        border-radius: 0 0 5px 5px;
+        border-top: none;
+        box-shadow: #000 2px 2px 15px;
+    }
+
+    .task .type {
+        padding: 4px 6px;
+        border-radius: 7px;
+        margin-left: 8px;
+        color: #111;
+        font-family: monospace;
+        opacity: .4;
+        background-color: yellow;
+        position: absolute;
+        bottom: 4px;
+        left: -5px;
     }
 
 .deck {
@@ -99,3 +124,33 @@ progress {
         background-size: 25px 14px, 100% 100%, 100% 100%;
         -webkit-animation: move 5s linear 0 infinite;
     }
+
+.login {
+    position: relative;
+    z-index: 10;
+    float: right;
+}
+
+.members ul {
+    margin: 0;
+    padding: 0;
+}
+
+.members li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin: 10px 0;
+}
+
+.members img {
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin-right: 10px;
+    border-radius: 10px;
+}
+
+.members .available {
+    color: aquamarine;
+}

@@ -17,10 +17,10 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     $scope.dashboardSet = false;
     $scope.dashboardLoading = false;
 
-    $scope.test = {
+    $scope.chartone = {
         title: {
             position: "bottom",
-            text: "Share of Internet Population Growth, 2007 - 2012"
+            text: "Project Distribution"
         },
         legend: {
             visible: false
@@ -32,36 +32,29 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
             labels: {
                 visible: true,
                 background: "transparent",
-                template: "#= category #: \n #= value#%"
+                template: "#= category #: \n #= value#%",
+                color: "#aaaaaa"
             }
         },
         series: [{
             type: "pie",
             startAngle: 150,
             data: [{
-                category: "Asia",
+                category: "Projects",
                 value: 53.8,
-                color: "#9de219"
+                color: "#068c35"
             }, {
-                category: "Europe",
+                category: "Change Orders",
                 value: 16.1,
                 color: "#90cc38"
             }, {
-                category: "Latin America",
+                category: "Support",
                 value: 11.3,
                 color: "#068c35"
             }, {
-                category: "Africa",
+                category: "Content",
                 value: 9.6,
                 color: "#006634"
-            }, {
-                category: "Middle East",
-                value: 5.2,
-                color: "#004d38"
-            }, {
-                category: "North America",
-                value: 3.6,
-                color: "#033939"
             }]
         }],
         tooltip: {
@@ -70,31 +63,122 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         }
     };
 
+    $scope.charttwo = {
+        title: {
+            position: "bottom",
+            text: "Active vs. Inactive"
+        },
+        legend: {
+            visible: false
+        },
+        chartArea: {
+            background: ""
+        },
+        seriesDefaults: {
+            labels: {
+                visible: true,
+                background: "transparent",
+                template: "#= category #: \n #= value#%",
+                color: "#aaaaaa"
+            }
+        },
+        series: [{
+            type: "pie",
+            startAngle: 150,
+            data: [{
+                category: "Projects",
+                value: 53.8,
+                color: "#068c35"
+            }, {
+                category: "Change Orders",
+                value: 16.1,
+                color: "#90cc38"
+            }, {
+                category: "Support",
+                value: 11.3,
+                color: "#068c35"
+            }, {
+                category: "Content",
+                value: 9.6,
+                color: "#006634"
+            }]
+        }],
+        tooltip: {
+            visible: true,
+            format: "{0}%"
+        }
+    };
 
+    $scope.chartthree = {
+        title: {
+            position: "bottom",
+            text: "TFS Data"
+        },
+        legend: {
+            visible: false
+        },
+        chartArea: {
+            background: ""
+        },
+        seriesDefaults: {
+            labels: {
+                visible: true,
+                background: "transparent",
+                template: "#= category #: \n #= value#%",
+                color: "#aaaaaa"
+            }
+        },
+        series: [{
+            type: "pie",
+            startAngle: 150,
+            data: [{
+                category: "Checkins",
+                value: 53.8,
+                color: "blue"
+            }, {
+                category: "All Hours",
+                value: 16.1,
+                color: "#90cc38"
+            }, {
+                category: "Other Stuff",
+                value: 11.3,
+                color: "#068c35"
+            }, {
+                category: "Content",
+                value: 9.6,
+                color: "#006634"
+            }]
+        }],
+        tooltip: {
+            visible: true,
+            format: "{0}%"
+        }
+    };
 
     // Context Helpers
     $scope.setDashboard = function () {
-        
-        if($scope.dashboardLoading) return;
+
+        if ($scope.dashboardLoading) return;
 
         $scope.dashboardLoading = true;
         $scope.board = this.board;
         hookItem(this.board.id, 'dashboard.dev.codefly.ninja/home/boardactivity');
+
+        getMembers(function () {
+        });
 
         getLists(function () {
             $.each($scope.lists, function (idx, list) {
                 hookItem(list.id, 'dashboard.dev.codefly.ninja/home/listactivity');
             });
 
-            getMembers(function () {
-                getCards(function (cards) {
-                    $.each($scope.cards, function (idx, card) {
-                        hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
-                    });
-                    $scope.dashboardSet = true;
-                    $scope.dashboardLoading = false;
-                    $scope.$apply();
+            getCards(function (cards) {
+                $.each($scope.cards, function (idx, card) {
+                    hookItem(card.id, 'dashboard.dev.codefly.ninja/home/cardactivity');
                 });
+                $scope.dashboardSet = true;
+                $scope.dashboardLoading = false;
+                $scope.$apply();
             });
         });
     };
@@ -104,12 +188,21 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     }
 
     $scope.getListName = function (id) {
-        for(var x = 0; x < $scope.lists.length; x++){
-            if($scope.lists[x].id == id)
+        for (var x = 0; x < $scope.lists.length; x++) {
+            if ($scope.lists[x].id == id)
                 return $scope.lists[x].name;
         }
     }
 
+    $scope.numberOfAssignedProjects = function (id) {
+        var cards = getActiveProjects();
+        var count = 0;
+        for (var x = 0; x < cards.length; x++) {
+            if (isMemberOfCard(cards[x], id))
+                count++;
+        }
+        return count;
+    }
 
 
 
@@ -138,23 +231,23 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     // Custom Classes
     $scope.isBlocked = function (c) {
         //return this.card.labels.filter(l => l.name == 'Blocked').length > 0;
-        for(var x = 0; x < this.card.labels.length; x++){
-            if(this.card.labels[x].name == 'Blocked')
+        for (var x = 0; x < this.card.labels.length; x++) {
+            if (this.card.labels[x].name == 'Blocked')
                 return true;
         }
     }
 
     $scope.isPending = function (c) {
         //return this.card.labels.filter(l => l.name == 'Pending').length > 0;
-        for(var x = 0; x < this.card.labels.length; x++){
-            if(this.card.labels[x].name == 'Pending')
+        for (var x = 0; x < this.card.labels.length; x++) {
+            if (this.card.labels[x].name == 'Pending')
                 return true;
         }
     }
-    
-    $scope.hasStatus = function(status){
-        for(var x = 0; x < this.card.labels.length; x++){
-            if(this.card.labels[x].name == status)
+
+    $scope.hasStatus = function (status) {
+        for (var x = 0; x < this.card.labels.length; x++) {
+            if (this.card.labels[x].name == status)
                 return true;
         }
     }
@@ -175,10 +268,27 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     function getListById(id) {
         //return $scope.lists.filter(l => l.id == id)[0];
-        for(var x = 0; x < $scope.lists.length; x++){
-            if($scope.lists[x].id == id)
+        for (var x = 0; x < $scope.lists.length; x++) {
+            if ($scope.lists[x].id == id)
                 return true;
         }
+    }
+
+    function isMemberOfCard(card, id) {
+        for (var x = 0; x < card.idMembers.length; x++) {
+            if (card.idMembers[x] == id)
+                return true;
+        }
+    }
+
+    function getActiveProjects() {
+        var activeProjects = [];
+        for (var x = 0; x < $scope.cards.length; x++) {
+            if ($scope.cards[x].list == "In Progress") {
+                activeProjects.push($scope.cards[x]);
+            }
+        }
+        return activeProjects;
     }
 
 
@@ -219,13 +329,20 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     }
 
     function getMembers(callback) {
-        Trello.get('/boards/' + $scope.board.id + '/members',
-        function (response) {
-            for (var x = 0; x < response.length; x++) {
-                $scope.members.push(new Member(response[x]))
-            }
-            callback();
-        });
+
+        for (var x = 0; x < $scope.board.memberships.length; x++) {
+            Trello.get('/members/' + $scope.board.memberships[x].idMember, function (response) {
+                $scope.members.push(new Member(response));
+            });
+        }
+
+        //Trello.get('/boards/' + $scope.board.id + '/members',
+        //function (response) {
+        //    for (var x = 0; x < response.length; x++) {
+        //        $scope.members.push(new Member(response[x]))
+        //    }
+        //    callback();
+        //});
     }
 
     function getCardsForList(listId, callback) {
@@ -238,8 +355,8 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     function getToken() {
         Trello.get('/members/me/tokens?webhooks=true', function (response) {
             //$scope.token = response.filter(i => i.identifier == 'Dashboard by CodeFly')[0];
-            for(var x = 0; x < response.length; x++){
-                if(response[x].identifier == 'Dashboard by CodeFly')
+            for (var x = 0; x < response.length; x++) {
+                if (response[x].identifier == 'Dashboard by CodeFly')
                     $scope.token = response[x];
             }
         });
@@ -249,8 +366,8 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     // Webhooks
     function hookItem(id, path) {
-        for(var x = 0; x < $scope.token.webhooks.length; x++){
-            if($scope.token.webhooks[x].idModel == id)
+        for (var x = 0; x < $scope.token.webhooks.length; x++) {
+            if ($scope.token.webhooks[x].idModel == id)
                 return;  // don't hook it again
         }
 
@@ -295,6 +412,16 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         var json = JSON.parse(data);
         console.log('List Update (' + json.action.type + ')', json);
 
+        switch (json.action.type) {
+            case 'updateCard':
+                //if (json.action.data.list && json.action.data.list.name == 'Done!!!') {
+                //    go();
+                //    var audio = new Audio('Content/audio/awesome.mp3');
+                //    audio.play();
+                //}
+                break;
+        }
+
         $scope.$apply();
     }
 
@@ -306,6 +433,16 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
         switch (json.action.type) {
             case 'updateCard':
+                if (json.action.data.old.idList != null &&
+                    json.action.data.listBefore.name != 'Done!!!' &&
+                    json.action.data.listAfter.name == 'Done!!!') {
+                    go();
+                    var audio = new Audio('Content/audio/awesome.mp3');
+                    audio.play();
+                    audio.onended = function () {
+                        stop();
+                    };
+                }
             case 'addLabelToCard':
             case 'removeLabelFromCard':
             case 'addChecklistToCard':
@@ -319,19 +456,19 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
             case 'deleteAttachmentFromCard':
                 //var target = $scope.cards.filter(c => c.id == json.model.id)[0];
                 var target = null;
-                for(var x = 0; x < $scope.cards.length; x++){
-                    if($scope.cards[x].id == json.model.id)
+                for (var x = 0; x < $scope.cards.length; x++) {
+                    if ($scope.cards[x].id == json.model.id)
                         target = $scope.cards[x];
                 }
-                
-                if(target !== null)
+
+                if (target !== null)
                     target = target.update(json.model);
-                
+
                 break;
             case 'commentCard':
                 $scope.feed.push({
                     type: 'New comment',
-                    member: json.action.memberCreator.fullName,
+                    member: json.action.memberCreator.initials,
                     text: json.action.data.text
                 });
                 $scope.$apply();
@@ -401,7 +538,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
                 write: true,
                 account: true
             },
-            expiration: "1hour",
+            expiration: "never",
             success: onAuthorize
         })
     });
@@ -454,6 +591,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         ctx.type = getCardType(ctx);
         ctx.list = getListName(ctx.idList);
         ctx.dueDate = (ctx.badges.due == null) ? null : new Date(ctx.badges.due).toDateString()
+        ctx.hasDueDate = ctx.dueDate != null;
     }
 
     function getCardType(ctx) {
@@ -461,7 +599,7 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         for (var x = 0; x < ctx.labels.length; x++) {
             for (var i = 0; i < labels.types.length; i++) {
                 if (labels.types[i] == ctx.labels[x].name) {
-                    cardType = ctx.labels[x].name;
+                    cardType = ctx.labels[x];
                 }
             }
         }
@@ -471,9 +609,9 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
     function getListName(id) {
 
         //return lists.filter(l => l.id == id)[0].name;
-        
-        for(var x = 0; x < lists.length; x++){
-            if(lists[x].id == id)
+
+        for (var x = 0; x < lists.length; x++) {
+            if (lists[x].id == id)
                 return lists[x].name;
         }
     }
@@ -524,6 +662,13 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     function Member(model) {
         for (var attrname in model) { this[attrname] = model[attrname]; }
+        if (this.avatarHash != null) {
+            this.avatarUrl = this.avatarSource == null ?
+                'https://trello-avatars.s3.amazonaws.com/' + this.avatarHash + '/50.png' :
+                'http://www.gravatar.com/avatar/' + this.gravatarHash;
+        } else {
+            this.avatarUrl = 'http://www.someblogsite.com/images/avatars/lego-avatar-crop.jpg';
+        }
         console.log("New Member", this);
     }
     return Member;
