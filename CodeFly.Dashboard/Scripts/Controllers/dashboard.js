@@ -63,98 +63,6 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         }
     };
 
-    $scope.charttwo = {
-        title: {
-            position: "bottom",
-            text: "Active vs. Inactive"
-        },
-        legend: {
-            visible: false
-        },
-        chartArea: {
-            background: ""
-        },
-        seriesDefaults: {
-            labels: {
-                visible: true,
-                background: "transparent",
-                template: "#= category #: \n #= value#%",
-                color: "#aaaaaa"
-            }
-        },
-        series: [{
-            type: "pie",
-            startAngle: 150,
-            data: [{
-                category: "Projects",
-                value: 53.8,
-                color: "#068c35"
-            }, {
-                category: "Change Orders",
-                value: 16.1,
-                color: "#90cc38"
-            }, {
-                category: "Support",
-                value: 11.3,
-                color: "#068c35"
-            }, {
-                category: "Content",
-                value: 9.6,
-                color: "#006634"
-            }]
-        }],
-        tooltip: {
-            visible: true,
-            format: "{0}%"
-        }
-    };
-
-    $scope.chartthree = {
-        title: {
-            position: "bottom",
-            text: "TFS Data"
-        },
-        legend: {
-            visible: false
-        },
-        chartArea: {
-            background: ""
-        },
-        seriesDefaults: {
-            labels: {
-                visible: true,
-                background: "transparent",
-                template: "#= category #: \n #= value#%",
-                color: "#aaaaaa"
-            }
-        },
-        series: [{
-            type: "pie",
-            startAngle: 150,
-            data: [{
-                category: "Checkins",
-                value: 53.8,
-                color: "blue"
-            }, {
-                category: "All Hours",
-                value: 16.1,
-                color: "#90cc38"
-            }, {
-                category: "Other Stuff",
-                value: 11.3,
-                color: "#068c35"
-            }, {
-                category: "Content",
-                value: 9.6,
-                color: "#006634"
-            }]
-        }],
-        tooltip: {
-            visible: true,
-            format: "{0}%"
-        }
-    };
-
     // Context Helpers
     $scope.setDashboard = function () {
 
@@ -335,14 +243,6 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
                 $scope.members.push(new Member(response));
             });
         }
-
-        //Trello.get('/boards/' + $scope.board.id + '/members',
-        //function (response) {
-        //    for (var x = 0; x < response.length; x++) {
-        //        $scope.members.push(new Member(response[x]))
-        //    }
-        //    callback();
-        //});
     }
 
     function getCardsForList(listId, callback) {
@@ -414,11 +314,6 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
         switch (json.action.type) {
             case 'updateCard':
-                //if (json.action.data.list && json.action.data.list.name == 'Done!!!') {
-                //    go();
-                //    var audio = new Audio('Content/audio/awesome.mp3');
-                //    audio.play();
-                //}
                 break;
         }
 
@@ -471,17 +366,14 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
                     member: json.action.memberCreator.initials,
                     text: json.action.data.text
                 });
-                $scope.$apply();
                 break;
             default:
                 break;
-
         }
 
         $scope.cards.sort(function (a, b) {
             return a.pos - b.pos;
         });
-
         $scope.$apply();
     }
 
@@ -575,17 +467,6 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
         calculateNewValues(this);
     };
 
-    /**
-     * Private property
-     */
-    //var possibleRoles = ['admin', 'editor', 'guest'];
-
-    /**
-     * Private functions
-     */
-    //function checkRole(role) {
-    //    return possibleRoles.indexOf(role) !== -1;
-    //}
     function calculateNewValues(ctx) {
         ctx.percentComplete = 100 * (ctx.badges.checkItemsChecked / ctx.badges.checkItems);
         ctx.type = getCardType(ctx);
@@ -608,39 +489,12 @@ dashboardApp.controller('DashboardCtrl', ['$scope', 'Card', 'Board', 'List', 'Me
 
     function getListName(id) {
 
-        //return lists.filter(l => l.id == id)[0].name;
-
         for (var x = 0; x < lists.length; x++) {
             if (lists[x].id == id)
                 return lists[x].name;
         }
     }
 
-    /**
-     * Static property
-     * Using copy to prevent modifications to private property
-     */
-    //Card.possibleRoles = angular.copy(possibleRoles);
-
-    /**
-     * Static method, assigned to class
-     * Instance ('this') is not available in static context
-     */
-    //Card.build = function (data) {
-    //    if (!checkRole(data.role)) {
-    //        return;
-    //    }
-    //    return new Card(
-    //      data.first_name,
-    //      data.last_name,
-    //      data.role,
-    //      Organisation.build(data.organisation) // another model
-    //    );
-    //};
-
-    /**
-     * Return the constructor function
-     */
     return Card;
 
 }).factory('Board', function () {
